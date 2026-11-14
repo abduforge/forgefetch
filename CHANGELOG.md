@@ -1,21 +1,22 @@
 # Changelog
 
-## 1.3.0 — System intelligence and live view
+## [1.4.0] - 2026-11-14
 
-- Expanded the system snapshot with CPU governor, load average, visible process count, and firmware boot mode.
-- Added `--watch [SECONDS]` for a continuously refreshed terminal view, with interval validation and graceful Ctrl+C exit.
-- Added `--no-network` to hide network interface names and local IP addresses from terminal, JSON, and Markdown output.
-- Added `--no-color` as an alias for `--plain`.
-- Includes the hardware, battery, network, Secure Boot, responsive layout, and safer configuration improvements prepared during development after 1.0.0.
-- Remains local-first, read-only, dependency-free, and compatible with existing logo preferences.
+### Added
+- Read-only `--check` indicators for temperature, memory, root filesystem and swap.
+- Selective output with `--section` and `--list-sections`.
+- Root filesystem capacity in the default view.
+- Markdown report export with `--report [FILE]`.
 
-## 1.0.0 — First release
+### Improved
+- More informative help text and examples.
+- Defensive handling of absent or unreadable system data.
+- Report and JSON output retain the `--no-network` privacy behavior.
 
-- First-run logo selection: distribution mark or custom wordmark.
-- Large centered 5×5 ASCII lettering above the system characteristics.
-- Vertical system-information layout with decorative corner framing.
-- Six accent colors and persistent local preferences.
-- System, hardware, resources, and session information.
-- JSON and Markdown report output.
-- Install and uninstall scripts.
-- Automated unit tests.
+### Preserved
+- Live refresh with `--watch`.
+- JSON output, custom brand/accent, and `--no-color` / `--plain`.
+- CPU, memory, GPU, temperature, battery, boot mode and security availability data.
+
+## [1.3.0]
+- Live refresh, network privacy switch and additional hardware/system metrics.

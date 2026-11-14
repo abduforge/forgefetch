@@ -1,12 +1,11 @@
-#!/usr/bin/env bash
-set -euo pipefail
-PURGE="${1:-}"
-rm -f "${HOME}/.local/bin/forgefetch"
-rm -f "${HOME}/.local/share/applications/forgefetch.desktop"
-if [[ "$PURGE" == "--purge" ]]; then
-  rm -rf "${HOME}/.config/forgefetch"
-  echo "ForgeFetch removed, including local preferences."
+#!/usr/bin/env sh
+set -eu
+INSTALL_DIR="${FORGEFETCH_INSTALL_DIR:-$HOME/.local/bin}"
+TARGET="$INSTALL_DIR/forgefetch"
+if [ -f "$TARGET" ]; then
+  rm -- "$TARGET"
+  printf 'Removed %s\n' "$TARGET"
 else
-  echo "ForgeFetch launcher removed. Preferences in ~/.config/forgefetch were kept."
-  echo "To remove preferences too: ./uninstall.sh --purge"
+  printf 'ForgeFetch executable not found at %s\n' "$TARGET"
 fi
+printf 'Configuration and reports were left untouched.\n'

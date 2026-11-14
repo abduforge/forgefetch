@@ -1,129 +1,109 @@
-# ForgeFetch
+# ForgeFetch 1.4.0
 
-**A customizable, local-first Linux system summary with a centered ASCII wordmark.**
+A lightweight, read-only system information tool for Linux. ForgeFetch uses Python's standard library and does not need root privileges or third-party packages.
 
-ForgeFetch displays a readable snapshot of a Linux machine in the terminal. Pick a built-in distribution mark or create your own large wordmark, then inspect system and hardware details, export reports, or watch values refresh live.
+> “Every system tells a story. Learn to read it.”
 
-## What's new in 1.3.0
+## What's new in 1.4.0
 
-- `--watch [SECONDS]`: refresh the display continuously (2 seconds by default; press `Ctrl+C` to stop).
-- `--no-network`: hide network interface names and local IP addresses in terminal and report output.
-- `--no-color`: alias for `--plain`.
-- Additional system facts: boot mode, load average, visible process count, and CPU frequency governor when the kernel exposes them.
-- The application remains dependency-free and uses only Python's standard library.
+- `--check`: simple local health indicators for temperature, memory, root filesystem and swap.
+- `--section`: display only selected groups (`system`, `cpu`, `memory`, `storage`, `graphics`, `sensors`, `network`, `security`).
+- Root filesystem capacity is included in the normal system view.
+- `--report [FILE]`: export a Markdown system report.
+- Better report formatting and more defensive handling of missing system files and commands.
+- Existing 1.3.0 features remain: live refresh, JSON output, network privacy switch, custom brand/accent, and no-color mode.
+
+Health checks are informational heuristics, not a full hardware or security audit. ForgeFetch does not make changes to system settings.
 
 ## Requirements
 
 - Linux
 - Python 3.10 or newer
-- UTF-8 terminal recommended
-- Optional: `iproute2` (`ip` command) for local IP address display
+- No third-party Python modules
 
-## Install
-
-Download and extract the release archive, then run:
+## Run without installing
 
 ```bash
-unzip forgefetch-1.3.0.zip
-cd forgefetch-1.3.0
+python3 forgefetch.py
+python3 forgefetch.py --check
+python3 forgefetch.py --section cpu,memory
+python3 forgefetch.py --json --no-network
+python3 forgefetch.py --report system-report.md
+```
+
+## Install for the current user
+
+```bash
 chmod +x install.sh
 ./install.sh
 ```
 
-The installer places the command in `~/.local/bin/forgefetch` and creates a desktop launcher in `~/.local/share/applications/`. Ensure `~/.local/bin` is in your `PATH`.
-
-Run:
+The installer places `forgefetch` in `~/.local/bin`. Make sure that directory is on your `PATH`.
 
 ```bash
-forgefetch
+forgefetch --version
+forgefetch --watch
 ```
 
-## First-run setup
-
-Choose one of two logo styles:
-
-1. **Distribution mark** — detect common distributions such as MX Linux, Debian, Ubuntu, Arch, Fedora, and Linux Mint.
-2. **Custom wordmark** — render up to nine Latin letters, digits, dots, underscores, or hyphens in large 5×5 block lettering, with a subtitle.
-
-Then choose an accent color. Preferences are saved locally in `~/.config/forgefetch/config.json`.
-
-Change preferences later:
-
-```bash
-forgefetch --setup
-```
-
-## Commands
-
-```bash
-forgefetch                         # Display a terminal system summary
-forgefetch --setup                  # Reconfigure logo and accent
-forgefetch --watch                  # Refresh the snapshot every 2 seconds
-forgefetch --watch 5                # Refresh every 5 seconds
-forgefetch --no-network             # Hide interfaces and local IP addresses
-forgefetch --plain                  # Disable ANSI colors
-forgefetch --no-color               # Same as --plain
-forgefetch --json                   # Print a structured JSON snapshot
-forgefetch --no-network --json      # JSON without local network details
-forgefetch --report ~/system.md     # Write a Markdown report
-forgefetch --no-network --report ~/system.md
-forgefetch --version                # Print version
-```
-
-`--watch` requires an interactive terminal and cannot be combined with `--json` or `--report`. Refresh intervals must be greater than 0 and no more than 60 seconds.
-
-## Example layout
-
-```text
-╭────────────── ◇ FORGEFETCH 1.3.0 ◇ ──────────────╮
-│                                                  │
-│                    [WORDMARK]                    │
-│                  MX Linux 25.3                   │
-│                                                  │
-│  ◆ SYSTEM                                         │
-│    OS               MX Linux 25.3                 │
-│    Hostname         workstation                   │
-│    Kernel           6.x                           │
-│    Boot mode        UEFI                          │
-│    Load average     0.12 / 0.18 / 0.20             │
-│                                                  │
-│  ◆ HARDWARE                                       │
-│    CPU              Intel Celeron ...             │
-│    Logical cores    2                             │
-│    Graphics         Intel ...                      │
-│                                                  │
-╰────────── ABDUFORGE · LOCAL SYSTEM SNAPSHOT ─────╯
-```
-
-The logo is always above the system characteristics; there is no side-by-side logo/details layout.
-
-## Privacy and scope
-
-ForgeFetch is read-only. It reads common local Linux system files and may call the local `ip` command to display addresses assigned to this machine. It does **not** scan other hosts, probe ports, change firewall settings, elevate privileges, or modify system configuration.
-
-Use `--no-network` when preparing a screenshot or report that should not include interface names or private/local IP addresses. Reports may still contain your hostname and other machine details; review them before sharing or committing them to a public repository.
-
-Some hardware details may show `Unavailable` when the kernel or hardware does not expose them to the current user.
-
-## Development and tests
-
-```bash
-python3 -m py_compile forgefetch.py
-python3 -m unittest discover -s tests -v
-```
-
-## Uninstall
+To uninstall the executable:
 
 ```bash
 ./uninstall.sh
 ```
 
-The uninstaller keeps preferences unless `--purge` is passed:
+Your configuration file is kept at `~/.config/forgefetch/config.json` and is not removed by the uninstall script.
+
+## Options
+
+| Option | Description |
+|---|---|
+| `--version` | Print the version |
+| `--watch [SECONDS]` | Refresh the display continuously; default interval is 2 seconds |
+| `--check` | Show read-only health indicators |
+| `--section NAME[,NAME]` | Select display groups; can be repeated |
+| `--list-sections` | List available display groups |
+| `--json` | Print JSON data |
+| `--report [FILE]` | Write a Markdown report; default file is `forgefetch-report.md` |
+| `--no-network` | Hide network interfaces and local IP addresses |
+| `--no-color`, `--plain` | Disable terminal colors |
+| `--brand TEXT` | Override the display name for one run |
+| `--accent COLOR` | Choose `cyan`, `green`, `blue`, `magenta`, `yellow`, or `white` |
+| `--config FILE` | Read settings from a custom JSON config file |
+
+Examples:
 
 ```bash
-./uninstall.sh --purge
+forgefetch --section system,cpu,storage
+forgefetch --check --no-network
+forgefetch --json --section cpu,memory,storage
+forgefetch --report ~/Documents/forgefetch-report.md --check
+forgefetch --brand AbduForge --accent green
+```
+
+## Configuration
+
+ForgeFetch reads optional settings from `~/.config/forgefetch/config.json`:
+
+```json
+{
+  "brand_name": "ForgeFetch",
+  "accent": "cyan"
+}
+```
+
+Unknown values are ignored. You can also use `--brand` and `--accent` for a one-time override.
+
+## Privacy
+
+ForgeFetch runs locally. It does not contact a remote service, upload telemetry, or resolve your public IP address. Its normal output can include your hostname and local network addresses. Use `--no-network` to hide interface names and local IP addresses. Review any report before sharing it publicly because it may contain device-identifying information.
+
+## Tests
+
+```bash
+python3 -m unittest discover -s tests -v
+python3 -m py_compile forgefetch.py
 ```
 
 ## License
 
-MIT. See [LICENSE](LICENSE).
+Keep the license already selected for the ForgeFetch GitHub repository. This source bundle does not replace or change that license file.
