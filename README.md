@@ -1,96 +1,115 @@
 # ForgeFetch
 
-**A customizable Linux system summary with a centered wordmark.**
+**A customizable, local-first Linux system summary with a centered ASCII wordmark.**
 
-ForgeFetch is a lightweight, dependency-free terminal tool inspired by the system-summary style of Fastfetch. Its visual layout is intentionally different: a built-in distribution ASCII mark or personal large-letter wordmark is centered at the top, followed by system characteristics in a vertical list, framed by ornamental corners.
+ForgeFetch displays a readable snapshot of a Linux machine in the terminal. Pick a built-in distribution mark or create your own large wordmark, then inspect system and hardware details, export reports, or watch values refresh live.
 
-## Features
+## What's new in 1.3.0
 
-- First-run choice: auto-detected distribution wordmark or your own large text wordmark.
-- Six accent colors: teal, blue, purple, amber, red, and white.
-- Persistent preferences stored in `~/.config/forgefetch/config.json`.
-- Centered 5-row block lettering, with a subtitle in custom mode.
-- Sequential sections for system, hardware, resources, and session details.
-- Local JSON output and Markdown report export.
-- Python standard library only; no third-party Python packages.
-- Read-only: it does not change system settings or scan other devices.
+- `--watch [SECONDS]`: refresh the display continuously (2 seconds by default; press `Ctrl+C` to stop).
+- `--no-network`: hide network interface names and local IP addresses in terminal and report output.
+- `--no-color`: alias for `--plain`.
+- Additional system facts: boot mode, load average, visible process count, and CPU frequency governor when the kernel exposes them.
+- The application remains dependency-free and uses only Python's standard library.
 
 ## Requirements
 
 - Linux
 - Python 3.10 or newer
-- A terminal with UTF-8 support for the decorative frame (plain output is also available)
+- UTF-8 terminal recommended
+- Optional: `iproute2` (`ip` command) for local IP address display
 
-## Quick install
+## Install
+
+Download and extract the release archive, then run:
 
 ```bash
-unzip forgefetch-1.0.0.zip -d forgefetch-1.0.0
-cd forgefetch-1.0.0
+unzip forgefetch-1.3.0.zip
+cd forgefetch-1.3.0
 chmod +x install.sh
 ./install.sh
 ```
 
-Ensure `~/.local/bin` is in your `PATH`, then run:
+The installer places the command in `~/.local/bin/forgefetch` and creates a desktop launcher in `~/.local/share/applications/`. Ensure `~/.local/bin` is in your `PATH`.
+
+Run:
 
 ```bash
 forgefetch
 ```
 
-The first launch asks you to choose a logo source:
+## First-run setup
 
-1. Distribution mark — ForgeFetch detects supported distributions (MX Linux, Debian, Ubuntu, Arch, Fedora, Linux Mint) and displays a built-in terminal mark; other distributions receive an automatically generated wordmark.
-2. Your own wordmark — enter up to nine Latin letters, digits, dots, underscores, or hyphens, plus a short subtitle.
+Choose one of two logo styles:
 
-Then choose an accent color. Preferences are saved for future launches.
+1. **Distribution mark** — detect common distributions such as MX Linux, Debian, Ubuntu, Arch, Fedora, and Linux Mint.
+2. **Custom wordmark** — render up to nine Latin letters, digits, dots, underscores, or hyphens in large 5×5 block lettering, with a subtitle.
+
+Then choose an accent color. Preferences are saved locally in `~/.config/forgefetch/config.json`.
+
+Change preferences later:
+
+```bash
+forgefetch --setup
+```
 
 ## Commands
 
 ```bash
-forgefetch              # Display the terminal system summary
-forgefetch --setup      # Reconfigure logo and accent
-forgefetch --plain      # Disable ANSI colors
-forgefetch --json       # Print a JSON snapshot
-forgefetch --report ~/forgefetch-report.md
-forgefetch --version
+forgefetch                         # Display a terminal system summary
+forgefetch --setup                  # Reconfigure logo and accent
+forgefetch --watch                  # Refresh the snapshot every 2 seconds
+forgefetch --watch 5                # Refresh every 5 seconds
+forgefetch --no-network             # Hide interfaces and local IP addresses
+forgefetch --plain                  # Disable ANSI colors
+forgefetch --no-color               # Same as --plain
+forgefetch --json                   # Print a structured JSON snapshot
+forgefetch --no-network --json      # JSON without local network details
+forgefetch --report ~/system.md     # Write a Markdown report
+forgefetch --no-network --report ~/system.md
+forgefetch --version                # Print version
 ```
 
-## Layout
+`--watch` requires an interactive terminal and cannot be combined with `--json` or `--report`. Refresh intervals must be greater than 0 and no more than 60 seconds.
+
+## Example layout
 
 ```text
-╭────────────── ◇ FORGEFETCH 1.0.0 ◇ ──────────────╮
+╭────────────── ◇ FORGEFETCH 1.3.0 ◇ ──────────────╮
 │                                                  │
 │                    [WORDMARK]                    │
-│                  Distribution name               │
+│                  MX Linux 25.3                   │
 │                                                  │
 │  ◆ SYSTEM                                         │
-│    OS               MX Linux                      │
-│    Kernel           ...                           │
-│    Architecture     ...                           │
+│    OS               MX Linux 25.3                 │
+│    Hostname         workstation                   │
+│    Kernel           6.x                           │
+│    Boot mode        UEFI                          │
+│    Load average     0.12 / 0.18 / 0.20             │
 │                                                  │
 │  ◆ HARDWARE                                       │
-│    CPU              ...                           │
-│    Logical cores    ...                           │
+│    CPU              Intel Celeron ...             │
+│    Logical cores    2                             │
+│    Graphics         Intel ...                      │
 │                                                  │
-╰──────────── ✦ ABDUFORGE · LOCAL SYSTEM SNAPSHOT ✦╯
+╰────────── ABDUFORGE · LOCAL SYSTEM SNAPSHOT ─────╯
 ```
 
-Custom wordmarks are rendered in large 5x5 block lettering. Distribution mode uses built-in terminal marks where available. System characteristics are always displayed below the logo, never in a side-by-side logo/details layout.
+The logo is always above the system characteristics; there is no side-by-side logo/details layout.
 
-## Configuration
+## Privacy and scope
 
-Preferences are stored locally at:
+ForgeFetch is read-only. It reads common local Linux system files and may call the local `ip` command to display addresses assigned to this machine. It does **not** scan other hosts, probe ports, change firewall settings, elevate privileges, or modify system configuration.
 
-```text
-~/.config/forgefetch/config.json
-```
+Use `--no-network` when preparing a screenshot or report that should not include interface names or private/local IP addresses. Reports may still contain your hostname and other machine details; review them before sharing or committing them to a public repository.
 
-Run `forgefetch --setup` to change the wordmark or accent. The configuration file is private to your user account.
+Some hardware details may show `Unavailable` when the kernel or hardware does not expose them to the current user.
 
 ## Development and tests
 
 ```bash
-python3 -m unittest discover -s tests -v
 python3 -m py_compile forgefetch.py
+python3 -m unittest discover -s tests -v
 ```
 
 ## Uninstall
@@ -99,15 +118,11 @@ python3 -m py_compile forgefetch.py
 ./uninstall.sh
 ```
 
-The uninstaller keeps your preferences. Remove them separately only if desired:
+The uninstaller keeps preferences unless `--purge` is passed:
 
 ```bash
-rm -r ~/.config/forgefetch
+./uninstall.sh --purge
 ```
-
-## Scope and privacy
-
-ForgeFetch reads local operating-system files and common environment variables to display a basic snapshot. It does not perform port scans, network discovery, privilege escalation, or configuration changes. Hardware values may be unavailable on some systems.
 
 ## License
 
